@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from random import randint
 from statistics import mean, median
 from collections import Counter
-env = gym.make("CartPole-v0")
+env = gym.make("Pendulum-v0")
 env.reset()
 #Number of frames
 goal_steps = 500
@@ -19,9 +19,8 @@ def create_data():
         # Moves from current environment and previous observations
         game_memory, prev_observation = [], []
         for _ in range(goal_steps):
-            action = random.randrange(0, 2)
-            observation, reward, done, info = env.step(action)
-
+            action = random.uniform(-2, 2)
+            observation, reward, done, info = env.step([0, action])
             if len(prev_observation) > 0:
                 game_memory.append([prev_observation, action])
 
@@ -31,7 +30,7 @@ def create_data():
             if done:
                 break
 
-        if score >= score_requirement:
+        if reward < 1:
             accepted_scores.append(score)
             for data in game_memory:
                 training_data.append(data)
@@ -56,9 +55,9 @@ def predict(X):
     pred = np.empty((X.shape[0], 1))
     for i in range(X.shape[0]):
         if X[i] >= 0.5:
-            pred[i] = 0
+            pred[i] = random.uniform(-2, 0)
         else:
-            pred[i] = 1
+            pred[i] = random.uniform(0, -2)
     return pred
 
 def cal_fitness(population, X, y, pop_size):
@@ -130,7 +129,7 @@ def GA_model(training_data):
         mutants = mutation(offsprings)
         population[0:parents.shape[0], :] = parents
         population[parents.shape[0]:, :] = mutants
-        fitness_history[i] = fitness
+        fitness_history.append(fitness)
 
     fitness_last_gen = cal_fitness(population, X, y, pop_size)
     max_fitness = np.where(fitness_last_gen == np.max(fitness_last_gen))
@@ -167,11 +166,11 @@ for each_game in range(10):
     for _ in range(goal_steps):
         env.render()
         if len(prev_obs) == 0:
-            action = random.randrange(0,2)
+            action = random.uniform(-2,2)
         else:
             action = GA_model_predict(prev_obs, weights)
         choices.append(action)
-        new_observation, reward, done, info = env.step(action)
+        new_observation, reward, done, info = env.step([0, action])
         prev_obs = new_observation
         game_memory.append([new_observation, action])
         score += reward
