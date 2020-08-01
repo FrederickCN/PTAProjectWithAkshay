@@ -18,19 +18,37 @@ def create_data():
         score = 0
         # Moves from current environment and previous observations
         game_memory, prev_observation = [], []
+        prev_reward = 1.
+        action = random.uniform(-2, 2)
         for _ in range(goal_steps):
-            action = random.uniform(-2, 2)
             observation, reward, done, info = env.step([0, action])
             if len(prev_observation) > 0:
                 game_memory.append([prev_observation, action])
+            angle1 = np.arcsin(observation[1])
+            angle2 = np.arccos(observation[0])
 
             prev_observation = observation
             score += reward
 
-            if done:
+            if prev_reward != 1:
+                if prev_reward > reward:
+                    if action > 0:
+                        action = random.uniform(-2, 0)
+                    else:
+                        action = random.uniform(0, 2)
+                else:
+                    if action < 0:
+                        action = random.uniform(-2, 0)
+                    else:
+                        action = random.uniform(0, 2)
+            else:
+                action = random.uniform(-2, 2)
+
+            prev_reward = reward
+            if reward > -0.1:
                 break
 
-        if reward < 1:
+        if reward > -0.1:
             accepted_scores.append(score)
             for data in game_memory:
                 training_data.append(data)
@@ -146,17 +164,17 @@ training_data = create_data()
 weights, fitness_history = GA_model(training_data)
 print('Weights: {}'.format(weights))
 weights = np.asarray(weights)
-
-num_generations = len(fitness_history)
-fitness_history_mean = [np.mean(fitness) for fitness in fitness_history]
-fitness_history_max = [np.max(fitness) for fitness in fitness_history]
-plt.plot(list(range(num_generations)), fitness_history_mean, label = 'Mean Fitness')
-plt.plot(list(range(num_generations)), fitness_history_max, label = 'Max Fitness')
-plt.legend()
-plt.title('Fitness through the generations')
-plt.xlabel('Generations')
-plt.ylabel('Fitness')
-plt.show()
+#
+# num_generations = len(fitness_history)
+# fitness_history_mean = [np.mean(fitness) for fitness in fitness_history]
+# fitness_history_max = [np.max(fitness) for fitness in fitness_history]
+# plt.plot(list(range(num_generations)), fitness_history_mean, label = 'Mean Fitness')
+# plt.plot(list(range(num_generations)), fitness_history_max, label = 'Max Fitness')
+# plt.legend()
+# plt.title('Fitness through the generations')
+# plt.xlabel('Generations')
+# plt.ylabel('Fitness')
+# plt.show()
 
 scores, choices = [], []
 for each_game in range(10):
