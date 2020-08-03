@@ -81,7 +81,7 @@ def predict(X):
 def cal_fitness(population, X, y, pop_size):
     fitness = np.empty((pop_size[0], 1))
     for i in range(pop_size[0]):
-        hx  = X@(population[i]).T
+        hx = X@(population[i]).T
         fitness[i][0] = np.sum(hx)
     return fitness
 
@@ -157,24 +157,12 @@ def GA_model(training_data):
 def GA_model_predict(test_data, weights):
     hx = sigmoid(test_data @ (weights).T)
     pred = predict(hx)
-    pred = pred.astype(int)
     return pred[0][0]
 
 training_data = create_data()
 weights, fitness_history = GA_model(training_data)
 print('Weights: {}'.format(weights))
 weights = np.asarray(weights)
-#
-# num_generations = len(fitness_history)
-# fitness_history_mean = [np.mean(fitness) for fitness in fitness_history]
-# fitness_history_max = [np.max(fitness) for fitness in fitness_history]
-# plt.plot(list(range(num_generations)), fitness_history_mean, label = 'Mean Fitness')
-# plt.plot(list(range(num_generations)), fitness_history_max, label = 'Max Fitness')
-# plt.legend()
-# plt.title('Fitness through the generations')
-# plt.xlabel('Generations')
-# plt.ylabel('Fitness')
-# plt.show()
 
 scores, choices = [], []
 for each_game in range(10):
@@ -192,9 +180,21 @@ for each_game in range(10):
         prev_obs = new_observation
         game_memory.append([new_observation, action])
         score += reward
-        if done:
+        if reward > -0.1:
             break
     scores.append(score)
 print('Required Score:',str(score_requirement))
 print('Average Score Achieved:',sum(scores)/len(scores))
+
+num_generations = len(fitness_history)
+fitness_history_mean = [np.mean(fitness) for fitness in fitness_history]
+fitness_history_max = [np.max(fitness) for fitness in fitness_history]
+plt.plot(list(range(num_generations)), fitness_history_mean, label = 'Mean Fitness')
+plt.plot(list(range(num_generations)), fitness_history_max, label = 'Max Fitness')
+plt.legend()
+plt.title('Fitness through the generations')
+plt.xlabel('Generations')
+plt.ylabel('Fitness')
+plt.show()
+
 env.close()
