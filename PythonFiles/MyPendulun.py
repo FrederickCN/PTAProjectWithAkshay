@@ -21,7 +21,7 @@ def create_data():
         prev_reward = 1.
         action = random.uniform(-2, 2)
         for _ in range(goal_steps):
-            observation, reward, done, info = env.step([0, action])
+            observation, reward, done, info = env.step([action])
             if len(prev_observation) > 0:
                 game_memory.append([prev_observation, action])
             angle1 = np.arcsin(observation[1])
@@ -72,10 +72,7 @@ def sigmoid(z):
 def predict(X):
     pred = np.empty((X.shape[0], 1))
     for i in range(X.shape[0]):
-        if X[i] >= 0.5:
-            pred[i] = random.uniform(-2, 0)
-        else:
-            pred[i] = random.uniform(0, -2)
+        pred[i] = (X[i] - 0.5) * 4
     return pred
 
 def cal_fitness(population, X, y, pop_size):
@@ -156,7 +153,9 @@ def GA_model(training_data):
 
 def GA_model_predict(test_data, weights):
     hx = sigmoid(test_data @ (weights).T)
+    print('hx:', hx)
     pred = predict(hx)
+    print('pred:', pred)
     return pred[0][0]
 
 training_data = create_data()
