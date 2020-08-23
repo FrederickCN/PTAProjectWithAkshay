@@ -23,26 +23,28 @@ def create_data():
         for _ in range(goal_steps):
             observation, reward, done, info = env.step([action])
             if len(prev_observation) > 0:
-                game_memory.append([prev_observation, action])
+                # game_memory.append([prev_observation, action])
+                game_memory.append([observation, action])
             angle1 = np.arcsin(observation[1])
             angle2 = np.arccos(observation[0])
 
             prev_observation = observation
             score += reward
 
-            if prev_reward != 1:
-                if prev_reward > reward:
-                    if action > 0:
-                        action = random.uniform(-2, 0)
-                    else:
-                        action = random.uniform(0, 2)
-                else:
-                    if action < 0:
-                        action = random.uniform(-2, 0)
-                    else:
-                        action = random.uniform(0, 2)
-            else:
-                action = random.uniform(-2, 2)
+            # if prev_reward != 1:
+            #     if prev_reward > reward:
+            #         if action > 0:
+            #             action = random.uniform(-2, 0)
+            #         else:
+            #             action = random.uniform(0, 2)
+            #     else:
+            #         if action < 0:
+            #             action = random.uniform(-2, 0)
+            #         else:
+            #             action = random.uniform(0, 2)
+            # else:
+            #     action = random.uniform(-2, 2)
+
 
             prev_reward = reward
             if reward > -0.1:
@@ -175,7 +177,7 @@ for each_game in range(10):
         else:
             action = GA_model_predict(prev_obs, weights)
         choices.append(action)
-        new_observation, reward, done, info = env.step([0, action])
+        new_observation, reward, done, info = env.step([action])
         prev_obs = new_observation
         game_memory.append([new_observation, action])
         score += reward
